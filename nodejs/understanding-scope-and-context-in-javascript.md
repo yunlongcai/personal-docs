@@ -241,7 +241,7 @@ print_a();  // this 指向了 a， 所有 this.name = a
 
 ```
 
-> 这段的代码不太理解
+> 下面的这段的代码不太理解
 
 它经常会使用在上下文缺失的地方；面向对象和事件处理（object-orientation and event handling）。 这是必须的因为一个 node 的 `addEventLinstener` 方法总是执行在事件处理器绑定的节点的上下文的回调函数，它就应该这么执行。 然而如果你使用高级的面向对象技术且要求你的回调函数是实例的方法，那么你就会需要手动的调整上下文，这就是 `bind` 方法迟早起作用的时候。
 
@@ -252,9 +252,29 @@ function MyClass(){
     this.element.addEventListener('click', this.onClick.bind(this), false);
 }
 
+// this.onclick.bind(this) 这里的 this 对象再重新绑定 this 的原因是因为 onclick 函数里面嵌套的函数可能用到 this 指针，需要重新绑定 --- WRONG
+
 MyClass.prototype.onClick = function(e){
     // do something
 };
+
+
+// 另加的例子 摘自：https://cnodejs.org/topic/5599521293cb46f578f0a57e
+
+var name = "global";
+var oo = {
+  name: "oo",
+  getNameFunc: function(){
+    return function(){
+      return this.name;
+    };
+  }
+}
+oo.getNameFunc()();  // -> "global"
+oo.getNameFunc().bind(oo)(); // -> "oo"
+
+// 这里 oo.getNameFunc().bind(oo)(); 重新绑定了 oo 之后再执行
+// 因为 getNameFunc 函数 里面嵌套的函数需要用到 oo 对象本身，所以要重新绑定。
 
 ```
 
